@@ -1,95 +1,108 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
 export default function Home() {
+  const [city,setCity] = useState('')
+  const [forecastData ,setForecastData] = useState([])
+
+     let API_KEY = 'ddead9b055d3632eb4806f8cc1ae4ad2'
+  const getSearchWeather=async()=>{
+    //  try{
+    //  const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`,{
+    //   method :"GET"
+    //  }) 
+    //    const data = await res.json()  
+    //    console.log(data.list)
+    //    setForecastData(data.list)
+    //   }
+    //   catch(error){
+    //        console.error(error)
+    //   }
+     
+    // }
+
+     try{
+       const res = await axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`)
+       const data = await res.json()
+       console.log(data.list)
+        setForecastData(data.list)      
+      }
+     catch(error){
+      console.log(error)
+     }
+    }
+    useEffect(()=>{
+      getSearchWeather()
+    },[city])
+  
+   const submitHandler=(e)=>{
+    e.preventDefault()
+    console.log(city)
+
+   }
+
+
+   const formatForecastData = () => {
+    if (!forecastData) {
+      return null; 
+        }
+
+    return forecastData.map((a) => {
+      const timestamp = a.dt;
+      const date = new Date(timestamp * 1000).toLocaleDateString();
+      const temperature = a.main.temp;
+      const minTemperature = a.main.temp_min;
+      const maxTemperature = a.main.temp_max;
+      const pressure = a.main.pressure;
+      const humidity = a.main.humidity;
+
+      return (
+        <tr key={timestamp}>
+          <td>{date}</td>
+          <td>{temperature}°C</td>
+          <td>{minTemperature}°C</td>
+          <td>{maxTemperature}°C</td>
+          <td>{pressure} hPa</td>
+          <td>{humidity}%</td>
+        </tr>
+      );
+    });
+  };
+
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className='container'>
+         <div className='headweather'>
+        <h2>Weather in your City</h2>
+        <form onSubmit={submitHandler}>
+         <input type='text' value={city} onChange={(e)=>setCity(e.target.value)}   />
+        <input type='submit' value='search' />
+         </form>
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        <table border='1px'>
+            <thead className='card'>
+                 <tr>
+                    <th className='date'>Date:</th>
+                 </tr>
+                 <tr>
+                  <th className='temp'>temperature</th>
+                 </tr>
+                 <tr>
+                  <th className='min'>Min</th>
+                  <th className='max'>Max</th>
+                 </tr>
+                 <tr>
+                  <th className='pres'>Pressure</th>
+                 </tr>
+                 <tr>
+                  <th className='humid'>humidity</th>
+                 </tr>
+            </thead>
+            <tbody className='body'>
+               {formatForecastData()}
+            </tbody>
+        </table>
+    </div>
   )
 }
