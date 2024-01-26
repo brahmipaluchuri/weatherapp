@@ -5,6 +5,7 @@ import axios from 'axios'
 export default function Home() {
   const [city,setCity] = useState('')
   const [forecastData ,setForecastData] = useState([])
+  const [data,setData] = useState(forecastData)
 
      let API_KEY = 'ddead9b055d3632eb4806f8cc1ae4ad2'
   const getSearchWeather=async()=>{
@@ -24,9 +25,8 @@ export default function Home() {
 
      try{
        const res = await axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`)
-       const data = await res.json()
-       console.log(data.list)
-        setForecastData(data.list)      
+       console.log(res.data.list)
+        setForecastData(res.data.list)      
       }
      catch(error){
       console.log(error)
@@ -39,7 +39,7 @@ export default function Home() {
    const submitHandler=(e)=>{
     e.preventDefault()
     console.log(city)
-
+    getSearchWeather()
    }
 
 
@@ -56,20 +56,19 @@ export default function Home() {
       const maxTemperature = a.main.temp_max;
       const pressure = a.main.pressure;
       const humidity = a.main.humidity;
-
-      return (
-        <tr key={timestamp}>
-          <td>{date}</td>
+  
+       return (
+        <tr>
+         <td>{date}</td>
           <td>{temperature}°C</td>
           <td>{minTemperature}°C</td>
           <td>{maxTemperature}°C</td>
           <td>{pressure} hPa</td>
           <td>{humidity}%</td>
-        </tr>
-      );
+          </tr>
+       )
     });
   };
-
 
   return (
     <div className='container'>
@@ -80,7 +79,7 @@ export default function Home() {
         <input type='submit' value='search' />
          </form>
         </div>
-        <table border='1px'>
+            <table border='1px'>
             <thead className='card'>
                  <tr>
                     <th className='date'>Date:</th>
@@ -98,10 +97,10 @@ export default function Home() {
                  <tr>
                   <th className='humid'>humidity</th>
                  </tr>
+                 <tbody>
+                     {formatForecastData()}
+                 </tbody>
             </thead>
-            <tbody className='body'>
-               {formatForecastData()}
-            </tbody>
         </table>
     </div>
   )
